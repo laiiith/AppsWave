@@ -22,7 +22,6 @@ namespace AppsWave.Services.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<ResponseDTO>> GetProducts([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             if (page < 1) page = 1;
@@ -50,8 +49,6 @@ namespace AppsWave.Services.Controllers
 
         [HttpGet("{id:int}", Name = "GetProduct")]
         [AllowAnonymous]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ResponseDTO>> GetProduct(int id)
         {
             var product = await _unitOfWork.Products.GetAsync(p => p.ProductId == id && !p.IsDeleted);
@@ -76,8 +73,6 @@ namespace AppsWave.Services.Controllers
 
         [HttpPost]
         [Authorize(Roles = Roles.ADMIN)]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ResponseDTO>> CreateProduct([FromBody] UpsertProductDTO dto)
         {
             if (!ModelState.IsValid)
@@ -123,8 +118,6 @@ namespace AppsWave.Services.Controllers
 
         [HttpPut("{id:int}")]
         [Authorize(Roles = Roles.ADMIN)]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateProduct(int id, [FromBody] UpsertProductDTO dto)
         {
             if (!ModelState.IsValid || id <= 0)
@@ -155,8 +148,6 @@ namespace AppsWave.Services.Controllers
 
         [HttpDelete("{id:int}")]
         [Authorize(Roles = Roles.ADMIN)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ResponseDTO>> DeleteProduct(int id)
         {
             var product = await _unitOfWork.Products.GetAsync(p => p.ProductId == id && !p.IsDeleted, tracked: true);

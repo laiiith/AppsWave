@@ -3,6 +3,7 @@ using AppsWave.Services.Data;
 using AppsWave.Services.Repository;
 using AppsWave.Services.Repository.IRepository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -12,6 +13,7 @@ namespace AppsWave.Services
 {
     public class Program
     {
+        private static ILogger<Program> _logger = null!;
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +24,8 @@ namespace AppsWave.Services
 
             builder.Services.AddScoped<AppsWave.Services.Services.Auth.IAuthService, AppsWave.Services.Services.Auth.AuthService>();
             builder.Services.AddScoped<AppsWave.Services.Services.Auth.IJwtTokenGenerator, AppsWave.Services.Services.Auth.JwtTokenGenerator>();
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             builder.Services.AddDbContext<AppsWave.Services.Data.AppDbContext>(options =>
@@ -57,6 +61,37 @@ namespace AppsWave.Services
             builder.Services.AddAuthorization();
             var app = builder.Build();
 
+            _logger = app.Services.GetRequiredService<ILogger<Program>>();
+
+            app.UseExceptionHandler(errorApp =>
+            {
+                errorApp.Run(async context =>
+                {
+                    var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+
+                    var statusCode = exception switch
+                    {
+                        UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+                        NotSupportedException or ArgumentException => StatusCodes.Status400BadRequest,
+                        _ => StatusCodes.Status500InternalServerError
+                    };
+
+                    context.Response.StatusCode = statusCode;
+                    context.Response.ContentType = "application/json";
+
+                    var response = new
+                    {
+                        success = false,
+                        message = exception?.Message ?? "An unexpected error occurred.",
+                        detail = app.Environment.IsDevelopment() ? exception?.ToString() : null
+                    };
+
+                    _logger.LogError(exception, "Unhandled Exception: {Message}", exception?.Message);
+
+                    await context.Response.WriteAsJsonAsync(response);
+                });
+            });
+
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
@@ -69,12 +104,19 @@ namespace AppsWave.Services
 
             app.MapControllers();
 
-            using (var scope = app.Services.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                dbContext.Database.Migrate();
+            using var scope = app.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
+            try
+            {
+                db.Database.Migrate();
+                _logger.LogInformation("Database migrated successfully.");
                 await SeedData(scope.ServiceProvider);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, "FATAL: Database migration or seeding failed!");
+                throw;
             }
 
             app.Run();
@@ -87,7 +129,6 @@ namespace AppsWave.Services
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-            // Create Roles
             string[] roles = { "ADMIN", "VISITOR" };
             foreach (var role in roles)
             {
@@ -95,7 +136,6 @@ namespace AppsWave.Services
                     await roleManager.CreateAsync(new IdentityRole(role));
             }
 
-            // Seed Admin
             var adminEmail = "admin@appswave.com";
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
             if (adminUser == null)
@@ -111,7 +151,6 @@ namespace AppsWave.Services
                 await userManager.AddToRoleAsync(adminUser, "ADMIN");
             }
 
-            // Seed Visitor
             var visitorEmail = "visitor@appswave.com";
             var visitorUser = await userManager.FindByEmailAsync(visitorEmail);
             if (visitorUser == null)
@@ -127,7 +166,6 @@ namespace AppsWave.Services
                 await userManager.AddToRoleAsync(visitorUser, "VISITOR");
             }
 
-            // Seed Products
             if (!db.Products.Any())
             {
                 db.Products.AddRange(
