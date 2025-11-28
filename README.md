@@ -37,13 +37,6 @@
 
 ---
 
-### How to Run (30 seconds)
-
-```bash
-# 1. Clone the repo
-git clone https://github.com/yourusername/AppsWave-ECommerce-API.git
-cd AppsWave-ECommerce-API
-
 # 2. Run the API
 cd src/AppsWave
 dotnet restore
