@@ -1,7 +1,4 @@
 <Solution>
-  <Folder Name="/Postman/">
-    <File Path="../../../OneDrive/Desktop/AppsWave E-Commerce API.postman_collection.json" />
-  </Folder>
   <Project Path="AppsWave.DTO/AppsWave.DTO.csproj" />
   <Project Path="AppsWave.Entites/AppsWave.Entites.csproj" />
   <Project Path="AppsWave.Services/AppsWave.Services.csproj" />
