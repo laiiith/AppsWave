@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace AppsWave.Services.Controllers
 {
@@ -29,6 +28,7 @@ namespace AppsWave.Services.Controllers
             }
             return Ok(_responseDTO);
         }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] AppsWave.DTO.LoginRequestDTO loginRequestDTO)
         {

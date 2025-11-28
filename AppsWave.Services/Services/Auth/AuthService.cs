@@ -53,7 +53,7 @@ public class AuthService : IAuthService
 
         bool isValid = await _userManager.CheckPasswordAsync(user, loginRequestDTO.Password);
 
-        if (user == null || isValid)
+        if (user == null || !isValid)
         {
             return new LoginResponseDTO() {  Token = string.Empty , User = null };  
         }

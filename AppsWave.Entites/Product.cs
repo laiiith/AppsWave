@@ -2,7 +2,9 @@
 
 public class Product
 {
-    public string? ArabicName { get; set; }
-    public string? EnglishName { get; set; }
-    public string? Price { get; set; }
+    public int ProductId { get; set; }
+    public string ArabicName { get; set; } = string.Empty;
+    public string EnglishName { get; set; } = string.Empty;
+    public decimal Price { get; set; }
+    public bool IsDeleted { get; set; } = false;
 }
