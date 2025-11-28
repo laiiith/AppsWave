@@ -1,4 +1,5 @@
 ﻿using AppsWave.DTO;
+using AppsWave.DTO.Invoice;
 using AppsWave.Entites;
 using AppsWave.Services.Repository.IRepository;
 using Microsoft.AspNetCore.Authorization;
@@ -55,7 +56,6 @@ namespace AppsWave.Services.Controllers
                 {
                     ProductId = product.ProductId,
                     Price = product.Price,
-                    Product = product,
                     Quantity = item.Quantity
                 });
             }
@@ -63,21 +63,22 @@ namespace AppsWave.Services.Controllers
             await _unitOfWork.Invoices.AddAsync(invoice);
             await _unitOfWork.SaveAsync();
 
+            var savedInvoice = await _unitOfWork.Invoices.GetInvoiceWithDetailsAsync(invoice.InvoiceId);
+
             var responseDto = new InvoiceResponseDTO
             {
-                InvoiceId = invoice.InvoiceId,
-                Date = invoice.Date,
+                InvoiceId = savedInvoice.InvoiceId,
+                Date = savedInvoice.Date,
                 UserName = user?.FullName ?? "User",
-                TotalAmount = invoice.TotalAmount,
-                Items = invoice.Details.Select(d => new InvoiceItemDTO
+                TotalAmount = savedInvoice.TotalAmount,
+                Items = savedInvoice.Details.Select(d => new InvoiceItemDTO
                 {
-                    ProductEnglishName = d.Product?.EnglishName ?? "Unknown",
-                    ProductArabicName = d.Product?.ArabicName ?? "غير معروف",
+                    ProductEnglishName = d.Product.EnglishName,
+                    ProductArabicName = d.Product.ArabicName,
                     Price = d.Price,
                     Quantity = d.Quantity
                 }).ToList()
             };
-
             _response.IsSuccess = true;
             _response.Result = responseDto;
             _response.Message = "Purchase completed successfully!";

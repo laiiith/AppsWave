@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AppsWave.DTO;
+﻿namespace AppsWave.DTO.Invoice;
 
 public class InvoiceResponseDTO
 {

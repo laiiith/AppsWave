@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace AppsWave.DTO;
+namespace AppsWave.DTO.Auth;
 
 public class LoginResponseDTO
 {

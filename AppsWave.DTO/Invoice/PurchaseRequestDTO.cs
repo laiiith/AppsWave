@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace AppsWave.DTO;
+namespace AppsWave.DTO.Invoice;
 
 public class PurchaseRequestDTO
 {

@@ -1,4 +1,5 @@
 ﻿using AppsWave.DTO;
+using AppsWave.DTO.Product;
 using AppsWave.Entites;
 using AppsWave.Services.Repository.IRepository;
 using Microsoft.AspNetCore.Authorization;
@@ -7,14 +8,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace AppsWave.Services.Controllers
 {
     [ApiController]
-    [Route("api/product")]
+    [Route("api/products")]
     [Authorize]
-    public class ProductController : ControllerBase
+    public class ProductsController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ResponseDTO _response = new();
 
-        public ProductController(IUnitOfWork unitOfWork)
+        public ProductsController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -74,7 +75,7 @@ namespace AppsWave.Services.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = Roles.ADMIN)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ResponseDTO>> CreateProduct([FromBody] UpsertProductDTO dto)
@@ -121,7 +122,7 @@ namespace AppsWave.Services.Controllers
         }
 
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = Roles.ADMIN)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateProduct(int id, [FromBody] UpsertProductDTO dto)
@@ -153,7 +154,7 @@ namespace AppsWave.Services.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "ADMIN")]
+        [Authorize(Roles = Roles.ADMIN)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ResponseDTO>> DeleteProduct(int id)

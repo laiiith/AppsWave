@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AppsWave.DTO.Auth;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AppsWave.Services.Controllers
 {
@@ -17,7 +18,7 @@ namespace AppsWave.Services.Controllers
 
         [HttpPost("register")]
 
-        public async Task<IActionResult> Register([FromBody] AppsWave.DTO.RegisterationRequestDTO requestDTO)
+        public async Task<IActionResult> Register([FromBody] RegisterationRequestDTO requestDTO)
         {
             var errorMessage = await _authService.Register(requestDTO);
             if (!string.IsNullOrEmpty(errorMessage))
@@ -30,7 +31,7 @@ namespace AppsWave.Services.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] AppsWave.DTO.LoginRequestDTO loginRequestDTO)
+        public async Task<IActionResult> Login([FromBody] LoginRequestDTO loginRequestDTO)
         {
             var loginResponse = await _authService.Login(loginRequestDTO);
 
